@@ -1,4 +1,3 @@
-
 R version 4.3.1 (2023-06-16 ucrt) -- "Beagle Scouts"
 Copyright (C) 2023 The R Foundation for Statistical Computing
 Platform: x86_64-w64-mingw32/x64 (64-bit)
@@ -48,6 +47,57 @@ Classes ‘data.table’ and 'data.frame':  264836 obs. of  8 variables:
  $ PROD_QTY      : int  2 3 2 5 3 1 1 1 1 2 ...
  $ TOT_SALES     : chr  "6" "6,3" "2,9" "15" ...
  - attr(*, ".internal.selfref")=<externalptr> 
+### 10 row of data 
+head(data)
+    DATE STORE_NBR LYLTY_CARD_NBR TXN_ID PROD_NBR                                PROD_NAME PROD_QTY TOT_SALES
+1: 43390         1           1000      1        5   Natural Chip        Compny SeaSalt175g        2         6
+2: 43599         1           1307    348       66                 CCs Nacho Cheese    175g        3       6,3
+3: 43605         1           1343    383       61   Smiths Crinkle Cut  Chips Chicken 170g        2       2,9
+4: 43329         2           2373    974       69   Smiths Chip Thinly  S/Cream&Onion 175g        5        15
+5: 43330         2           2426   1038      108 Kettle Tortilla ChpsHny&Jlpno Chili 150g        3      13,8
+6: 43604         4           4074   2982       57 Old El Paso Salsa   Dip Tomato Mild 300g        1       5,1
+
+### transform number DATE in format dates
+data$DATE <- as.Date(data$DATE, origin = "1899-12-30")
+ 
+head(data$DATE)
+[1] "2018-10-17" "2019-05-14" "2019-05-20" "2018-08-17" "2018-08-18" "2019-05-19"
+
+ ### summary PROD_NAME
+summary(data$PROD_NAME)
+   Length     Class      Mode 
+   264836 character character
+
+### examine incorrect entries in column PROD_NAME
+words <- data.table(unlist(strsplit(unique(data[, PROD_NAME]), " ")))
+setnames(words, 'words')
+ 
+print(head(words))
+     words
+1: Natural
+2:    Chip
+3:        
+4:        
+5:        
+6:    
+### FRECUENCY WORDS IN DATASET
+palabras <- data.table(unlist(strsplit(data$PROD_NAME, " ")))
+frecuency <- table(palabras)
+print(frecuency)
+
+### Removing special characters
+data$PROD_NAME <- gsub("[^[:alnum::] ]", "", data$PROD_NAME)
+head(data$PROD_NAME)
+[1] "Natural Chip        Compny SeaSalt175g"  
+[2] "CCs Nacho Cheese    175g"                
+[3] "Smiths Crinkle Cut  Chips Chicken 170g"  
+[4] "Smiths Chip Thinly  S/Cream&Onion 175g"  
+[5] "Kettle Tortilla ChpsHny&Jlpno Chili 150g"
+[6] "Old El Paso Salsa   Dip Tomato Mild 300g"
+
+
+
+
 
 
 
