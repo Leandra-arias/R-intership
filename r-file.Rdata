@@ -95,7 +95,10 @@ head(data$PROD_NAME)
 [5] "Kettle Tortilla ChpsHny&Jlpno Chili 150g"
 [6] "Old El Paso Salsa   Dip Tomato Mild 300g"
 
-
+### removing salsa products
+data[, SALSA:= grepl("salsa", tolower(PROD_NAME))]
+data <- data[SALSA == FALSE, ][, SALSA:= NULL]
+head(data$PROD_NAME)
 
 
 
