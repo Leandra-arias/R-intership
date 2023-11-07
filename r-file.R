@@ -14,7 +14,6 @@ Escriba 'demo()' para demostraciones, 'help()' para el sistema on-line de ayuda,
 o 'help.start()' para abrir el sistema de ayuda HTML con su navegador.
 Escriba 'q()' para salir de R.
 
-[Previously saved workspace restored]
 
  ### "Quantium Virtual Internship - Retail Strategy and Analytics - Task 1"
  
@@ -22,21 +21,23 @@ Escriba 'q()' para salir de R.
  
 install.packages("data.table")
 Installing package into ‘C:/Users/USUARIO/AppData/Local/R/win-library/4.3’
-(as ‘lib’ is unspecified)
 
-package ‘data.table’ successfully unpacked and MD5 sums checked
-
-The downloaded binary packages are in
-        C:\Users\USUARIO\AppData\Local\Temp\RtmpKsb7o6\downloaded_packages
 library(ggplot2)
 library(data.table)
-### download dataset transaction format csv
+
+### download dataset transaction and customer format csv
 data <- fread(input= "C:/Users/USUARIO/Downloads/QVI_transaction_data2.csv",
 + sep = ";",
 + dec = ".")
 
+customer <- fread( input = "C:/Users/USUARIO/Downloads/QVI_purchase_behaviour.csv", 
++ sep = ";", 
++ dec = ".")
+
 ### estructura data
 str(data)
+str(customer)
+
 Classes ‘data.table’ and 'data.frame':  264836 obs. of  8 variables:
  $ DATE          : int  43390 43599 43605 43329 43330 43604 43601 43601 43332 43330 ...
  $ STORE_NBR     : int  1 1 1 2 2 4 4 4 5 7 ...
@@ -73,13 +74,7 @@ words <- data.table(unlist(strsplit(unique(data[, PROD_NAME]), " ")))
 setnames(words, 'words')
  
 print(head(words))
-     words
-1: Natural
-2:    Chip
-3:        
-4:        
-5:        
-6:    
+     
 ### FRECUENCY WORDS IN DATASET
 palabras <- data.table(unlist(strsplit(data$PROD_NAME, " ")))
 frecuency <- table(palabras)
@@ -122,9 +117,9 @@ upper_bound <- Q3 + 1.5 * QF
  
 outlier <- subset(data, PROD_QTY < lower_bound | PROD_QTY > upper_bound)
  
- print("Transaccion con 200 paquetes de chips:")
+print("Transaccion con 200 paquetes de chips:")
 [1] "Transaccion con 200 paquetes de chips:"
-> print(transaction_chips)
+print(transaction_chips)
 Empty data.table (0 rows and 8 cols): DATE,STORE_NBR,LYLTY_CARD_NBR,TXN_ID,PROD_NBR,PROD_NAME...
 print(outlier)
            DATE STORE_NBR LYLTY_CARD_NBR TXN_ID PROD_NBR
@@ -168,6 +163,68 @@ head(filtered_data)
 ### count the number transaction by date
 transaction_date <- aggregate(TXN_ID~DATE, data= filtered_data, FUN= length)
 print(transaction_date)
+
+ ### sequency of dates 
+dates <- seq(as.Date("2018-07-01"), as.Date("2019-06-30"), by= "day")
+
+## dataframe con fechas
+dates_df <- data.frame(DATE = dates)
+ 
+## join count of transaction by date
+colum_dates <- merge(date_df, transaction_date, by= "DATE", all.x = TRUE)
+print(colum_dates)
+
+### graph 
+p <- ggplot(colum_dates, aes( x= DATE, y= TXN_ID))+
++ geom_line()+
++ labs( x= "DATES", y="TRANSACTION")+
++ theme_minimal()
+print(p)
+
+### filter december by day
+december <- subset(colum_dates, format(DATE, "%m")== "12"
+
+## graph december                   
+p_december <- ggplot(december, aes(x= "DATE", y= "TXN_ID"))+
++ geom_line()+
++ labs( x = "fecha", y= "transactions")+
++ theme_minimal()
+
+## interactive graph
+p_december_inter<- ggplotly(p_december)
+p_december_inter
+
+## create pack sizes
+install.packages("readr")
+library(readr)
+                   
+filtered_data[, pack_size := parse_number(PROD_NAME)]
+
+###check if the pack sizes look sensible
+summary(filtered_data$pack_size)
+                   
+## histogram of number of transaction
+hist(filtered_data$pack_size, main= "number of transactions", xlab= "pack size", ylab="frecuency", col="skyblue")
+
+### filter brand by prod_name                   
+filtered_data$BRAND <- sub("^(\\w+).*", "\\1", filtered_data$PROD_NAME)
+
+## checkin dataset
+head(filtered_data, 25)
+
+### merge dataset customer with filtered data 
+data_f <- merge(filtered_data, customer, all.x= TRUE)
+data_f  
+                   
+ ### checking null values to customer
+customer_null <- data_f[is.na(data_f$LYLTY_CARD_NBR.y), "LYLTY_CARD_NBR"]
+customer_null
+                   
+### save our dataset in format csv
+write.csv(data_f, "data_final.csv", row.names = FALSE)
+                   
+                  
+
 
 
 
