@@ -224,7 +224,37 @@ customer_null
 write.csv(data_f, "data_final.csv", row.names = FALSE)
                    
                   
+### data analyst on customer segments
+### who spend the most on chip
+                   
+install.packages("dplyr")
+library(dplyr)
 
+ data_group <- data_final %>%
++ group_by(LYLTY_CARD_NBR, LIFESTAGE, PREMIUM_CUSTOMER) %>%
++ summarise( TOTAL = sum(TOT_SALES))       
 
+                
+##highest Total Sales
+top_customer <- data_group %>%
++ arrange(desc(TOTAL)) %>%
++ slice(1)
+top_customer                   
 
+### customers are in each segment
+count_ls <- table(data_group$LIFESTAGE)
+head(count_ls)    
 
+### bar graph
+ggplot( data= data_group, aes(x= LIFESTAGE))+
++ geom_bar()+
++ labs( title = "number of customer by segment of lifestage", x = "Lifestage segment")
+
+### Total sales by LIFESTAGE and PREMIUM_CUSTOMER
+library(dplyr)
+sales_bysegment <- data_final %>%
++ group_by(LIFESTAGE, PREMIUM_CUSTOMER)%>%
++ summarise(sales = sum(TOT_SALES))
+sales_bysegment                  
+
+                   
