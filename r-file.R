@@ -255,6 +255,13 @@ library(dplyr)
 sales_bysegment <- data_final %>%
 + group_by(LIFESTAGE, PREMIUM_CUSTOMER)%>%
 + summarise(sales = sum(TOT_SALES))
-sales_bysegment                  
+sales_bysegment 
+                   
+ggplot(sales_bysegment, aes(x= LIFESTAGE, y= sales, fill= LIFESTAGE))+
++ geom_bar(stat = "identity")+
++ labs(title = "Total Sales by segment",
++ x = "Lifestage",
++ y = "Total sales")+
++ theme_minimal()
 
                    
