@@ -38,14 +38,55 @@ head(stores)
 stores$MONTH_ID <- format(stores$DATE, "%Y%m")
 
 # Define the measure calculations to use during the analysis.
-measureOvertime <- data[ , .(
-+ total_sales = sum(TOT_SALES),
+ salesOvertime <- stores %>%
++ group_by(STORE_NBR, MONTH_ID) %>%
++ summarize( 
++ total = sum(TOT_SALES),
 + nCustomer = uniqueN(LYLTY_CARD_NBR),
-+ nTperCust = .N/ uniqueN(LYLTY_CARD_NBR),
-+ nChips = sum(PROD_QTY)/.N,
-+ avgPrice = mean(TOT_SALES/PROD_QTY)
-+ ),
-+ by = .(STORE_NBR, MONTH_ID)][order(STORE_NBR, MONTH_ID)]  ## GROUP BY STORE NUMBER AND MONTH ID
++ transaction = n()/uniqueN(LYLTY_CARD_NBR),
++ chips_Customer = sum(PROD_NBR)/uniqueN(LYLTY_CARD_NBR),
++ avg_price = mean(TOT_SALES)
++ )  ## GROUP BY STORE NUMBER AND MONTH ID
+
+ head(salesOvertime)
+# A tibble: 6 × 7
+# Groups:   STORE_NBR [1]
+  STORE_NBR MONTH_ID total nCustomer transaction
+      <int>    <int> <dbl>     <int>       <dbl>
+1        77   201807  297.        51        1.08
+2        77   201808  256.        47        1.02
+3        77   201809  225.        42        1.05
+4        77   201810  204.        37        1.03
+5        77   201811  245.        41        1.07
+6        77   201812  267.        46        1.07
+
+
+
+### filter pre trial period 
+end_pre_trial_period <- as.Date('2019-02-01')
+
+store_obs_counts <- unique(stores[, .N, by = STORE_NBR]) 
+full_obs_stores <- store_obs_counts[N == 12, STORE_NBR]
+pre_trial_measures <- stores[
++ MONTH_ID < 201902 & STORE_NBR %in% full_obs_stores
++ ]
+head(full_obs_stores)
+integer(0)
+head(pre_trial_measures)
+
+##function to calculate correlation for a measure, looping through each control store
+
+calculatecorrelation <- function(inputTable, metriCol, storeComparason){
++ calcCorr = data.table( Store1= numeric(), store2 = numeric(), corr_measure = numeric())
++ storeNumber <-
++ for (i in storeNumber){
++ calculateMeasure = data.table("Store2" = , "Store2" = , "corr_measure" = )
++ calcCorr <- rbind(calcCorr, calculateMeasure)
++ }
++ return(calcCorr)
++ }
+
+
 
 
 
